@@ -5,6 +5,7 @@ const App = () => {
   const [newTask, setNewTask] = useState('');
   const [editingTask, setEditingTask] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState('landing'); // State untuk mengontrol halaman
 
   // Simulate loading time
   useEffect(() => {
@@ -132,7 +133,128 @@ const App = () => {
       </li>
     ));
   };
-  
+
+  const renderPage = () => {
+    switch (currentPage) {
+      case 'landing':
+        return (
+          <div className="landing-view">
+            <h1 className="title">
+              Selamat Datang! ✨
+            </h1>
+            <p className="subtitle">
+              Aplikasi daftar tugas sederhana untuk membantumu tetap terorganisir.
+            </p>
+            <div className="button-group">
+              <button
+                onClick={() => setCurrentPage('list')}
+                className="add-button"
+              >
+                Mulai
+              </button>
+              <button
+                onClick={() => setCurrentPage('about')}
+                className="add-button" 
+              >
+                Tentang Aplikasi
+              </button>
+            </div>
+          </div>
+        );
+      case 'list':
+        return (
+          <>
+            <h1 className="title">
+              ✨ Daftar Tugas
+            </h1>
+            <p className="subtitle">
+              Klik dua kali pada tugas untuk mengedit • Enter untuk simpan
+            </p>
+            <div className="input-container">
+              <input
+                type="text"
+                className="task-input"
+                placeholder="Apa yang ingin kamu kerjakan hari ini?"
+                value={newTask}
+                onChange={(e) => setNewTask(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleCreateTask();
+                }}
+              />
+              <button
+                onClick={handleCreateTask}
+                className="add-button"
+                disabled={newTask.trim() === ''}
+                title="Tambah tugas"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="icon-lg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+              </button>
+            </div>
+            {isLoading ? (
+              <div className="loading-text">
+                <div className="loading-spinner"></div>
+                Memuat...
+              </div>
+            ) : tasks.length > 0 ? (
+              <ul className="task-list">{renderTasks()}</ul>
+            ) : (
+              <div className="empty-state">
+                <svg className="empty-state-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                </svg>
+                <div className="empty-state-title">Belum ada tugas</div>
+                <div className="empty-state-text">Tambahkan tugas pertamamu di atas!</div>
+              </div>
+            )}
+            <div style={{marginTop: '2rem', textAlign: 'center', display: 'flex', justifyContent: 'center', gap: '1rem'}}>
+              <button
+                onClick={() => setCurrentPage('landing')}
+                className="add-button"
+              >
+                Kembali ke Beranda
+              </button>
+              <button
+                onClick={() => setCurrentPage('about')}
+                className="add-button"
+              >
+                Tentang Aplikasi
+              </button>
+            </div>
+          </>
+        );
+      case 'about':
+        return (
+          <div className="about-view">
+            <h1 className="title">Tentang Aplikasi Ini</h1>
+            <p className="subtitle">
+              Aplikasi ini adalah contoh proyek CRUD (Create, Read, Update, Delete) sederhana yang dibangun dengan React.
+            </p>
+            <ul style={{textAlign: 'left', lineHeight: '1.6'}}>
+              <li><strong style={{color: '#667eea'}}>Create:</strong> Tambahkan tugas baru dengan mudah.</li>
+              <li><strong style={{color: '#667eea'}}>Read:</strong> Lihat daftar semua tugas.</li>
+              <li><strong style={{color: '#667eea'}}>Update:</strong> Edit tugas dengan klik dua kali.</li>
+              <li><strong style={{color: '#667eea'}}>Delete:</strong> Hapus tugas yang sudah selesai.</li>
+            </ul>
+            <p style={{fontSize: '0.875rem', color: '#6b7280', fontStyle: 'italic', marginTop: '2rem'}}>
+              Aplikasi ini berjalan sepenuhnya di browser dan tidak menggunakan database eksternal. Data akan hilang saat halaman dimuat ulang.
+            </p>
+            <div style={{marginTop: '2rem', textAlign: 'center'}}>
+              <button
+                onClick={() => setCurrentPage('list')}
+                className="add-button" 
+              >
+                Kembali ke Daftar Tugas
+              </button>
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <>
       <style>
@@ -215,6 +337,24 @@ const App = () => {
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
+          }
+          .cancel-button {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+            color: #ffffff;
+            padding: 1rem 1.25rem;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(107, 114, 128, 0.4);
+            border: none;
+            cursor: pointer;
+            min-width: 60px;
+          }
+          .cancel-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(107, 114, 128, 0.6);
+          }
+          .cancel-button:active {
+            transform: translateY(0);
           }
           .task-list {
             list-style: none;
@@ -304,7 +444,11 @@ const App = () => {
             box-shadow: 0 4px 12px rgba(107, 114, 128, 0.4);
           }
           .cancel-button:hover {
-            box-shadow: 0 6px 16px rgba(107, 114, 128, 0.6);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(107, 114, 128, 0.6);
+          }
+          .cancel-button:active {
+            transform: translateY(0);
           }
           .complete-toggle-blue {
             background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
@@ -361,7 +505,6 @@ const App = () => {
           .empty-state-text {
             font-size: 0.875rem;
           }
-
           @keyframes fadeIn {
             from {
               opacity: 0;
@@ -372,17 +515,14 @@ const App = () => {
               transform: translateY(0);
             }
           }
-
           .task-item {
             animation: fadeIn 0.3s ease-out;
           }
-
           @keyframes spin {
             to {
               transform: rotate(360deg);
             }
           }
-
           .loading-spinner {
             display: inline-block;
             width: 2rem;
@@ -393,59 +533,16 @@ const App = () => {
             animation: spin 1s ease-in-out infinite;
             margin-right: 0.75rem;
           }
+          .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+          }
         `}
       </style>
-
       <div className="main-container">
         <div className="app-card">
-          <h1 className="title">
-            ✨ Daftar Tugas
-          </h1>
-          <p className="subtitle">
-            Klik dua kali pada tugas untuk mengedit • Enter untuk simpan • Escape untuk batal
-          </p>
-
-          {/* Input and button for creating a new task */}
-          <div className="input-container">
-            <input
-              type="text"
-              className="task-input"
-              placeholder="Apa yang ingin kamu kerjakan hari ini?"
-              value={newTask}
-              onChange={(e) => setNewTask(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleCreateTask();
-              }}
-            />
-            <button
-              onClick={handleCreateTask}
-              className="add-button"
-              disabled={newTask.trim() === ''}
-              title="Tambah tugas"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="icon-lg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-            </button>
-          </div>
-
-          {/* Task list */}
-          {isLoading ? (
-            <div className="loading-text">
-              <div className="loading-spinner"></div>
-              Memuat...
-            </div>
-          ) : tasks.length > 0 ? (
-            <ul className="task-list">{renderTasks()}</ul>
-          ) : (
-            <div className="empty-state">
-              <svg className="empty-state-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-              </svg>
-              <div className="empty-state-title">Belum ada tugas</div>
-              <div className="empty-state-text">Tambahkan tugas pertamamu di atas untuk memulai!</div>
-            </div>
-          )}
+          {renderPage()}
         </div>
       </div>
     </>
